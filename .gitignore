@@ -1,5 +1,19 @@
+# Build output
 bin/
 obj/
+
+# NuGet / packages
 /packages/
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.iml
 riderModule.iml
-/_ReSharper.Caches/
+
+# ReSharper
+_ReSharper.Caches/
+*.sln.DotSettings.user
+*.DotSettings.user
+
+# macOS
+.DS_Store
