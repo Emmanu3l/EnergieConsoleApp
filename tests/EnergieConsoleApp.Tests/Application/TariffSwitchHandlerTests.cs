@@ -1,4 +1,3 @@
-using Xunit;
 using EnergieConsoleApp.Application;
 using EnergieConsoleApp.Domain;
 

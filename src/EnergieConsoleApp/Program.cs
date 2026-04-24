@@ -5,9 +5,7 @@ try
 {
     Console.WriteLine("Starting Tariff Switch Processor...");
 
-    var dataRoot = Path.GetFullPath(Path.Combine(
-        AppContext.BaseDirectory,
-        "..", "..", "..", "lib"));
+    var dataRoot = Path.Combine(AppContext.BaseDirectory, "lib");
 
     var inputFolder = Path.Combine(dataRoot, "InputFiles");
     var outputFolder = Path.Combine(dataRoot, "OutputFiles");
