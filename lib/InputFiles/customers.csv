@@ -1,0 +1,6 @@
+CustomerId;Name;HasUnpaidInvoice;SLA;MeterType
+C001;Anna Maier;false;Premium;Smart
+C002;Stadtcafé GmbH;true;Standard;Classic
+C003;Jamal Idris;false;Standard;Classic
+C004;Miriam Hölzl;false;Premium;Classic
+C005;Bäckerei Schönbrunn KG;false;Standard;Smart
