@@ -41,8 +41,11 @@ public class TariffSwitchHandler
 
         foreach (var request in pendingRequests)
         {
+            if (processedIds.Contains(request.RequestId)) continue;
+
             var result = EvaluateRequest(request, customers, tariffs);
             _processedRepo.SaveProcessedRequest(result);
+            processedIds.Add(request.RequestId);
         }
     }
 
@@ -85,16 +88,9 @@ public class TariffSwitchHandler
 
     private string CalculateSlaDue(DateTime requestedAtUtc, int hoursToAdd)
     {
-        // Convert the UTC input to Local Vienna Time
-        DateTime localViennaTime = TimeZoneInfo.ConvertTimeFromUtc(requestedAtUtc, _viennaTimeZone);
-        
-        // Add hours to the local clock (safe against DST shifts)
-        DateTime localDue = localViennaTime.AddHours(hoursToAdd);
-        
-        // Attach the correct UTC offset for the final target date
-        TimeSpan offset = _viennaTimeZone.GetUtcOffset(localDue);
-        DateTimeOffset finalSlaDue = new DateTimeOffset(localDue, offset);
-        
-        return finalSlaDue.ToString("yyyy-MM-ddTHH:mm:sszzz");
+        // SLA durations are elapsed hours, including across DST transitions.
+        var dueUtc = new DateTimeOffset(requestedAtUtc).AddHours(hoursToAdd);
+        var localDue = TimeZoneInfo.ConvertTime(dueUtc, _viennaTimeZone);
+        return localDue.ToString("yyyy-MM-ddTHH:mm:sszzz", System.Globalization.CultureInfo.InvariantCulture);
     }
 }

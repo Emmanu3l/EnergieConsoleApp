@@ -17,3 +17,7 @@ _ReSharper.Caches/
 
 # macOS
 .DS_Store
+
+# Generated processing results
+/lib/OutputFiles/*.csv
+TestResults/

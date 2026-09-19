@@ -11,25 +11,23 @@ public class CsvCustomerRepository : ICustomerRepository
 
     public Dictionary<string, Customer> GetCustomers()
     {
-        var dict = new Dictionary<string, Customer>();
-        if (!File.Exists(_filePath)) throw new FileNotFoundException($"Missing: {_filePath}");
-
-        var lines = File.ReadAllLines(_filePath);
-        for (int i = 1; i < lines.Length; i++) // Skip header
+        var result = new Dictionary<string, Customer>();
+        // Parse eagerly so invalid master data fails before any requests are saved.
+        foreach (var item in CsvFile.Read(_filePath, "CustomerId;Name;HasUnpaidInvoice;SLA;MeterType", cols =>
         {
-            if (string.IsNullOrWhiteSpace(lines[i])) continue;
-            var cols = lines[i].Split(';'); // Using semicolon
-
-            var customer = new Customer
+            var item = new Customer
             {
-                CustomerId = cols[0].Trim(),
-                Name = cols[1].Trim(),
-                HasUnpaidInvoice = bool.Parse(cols[2].Trim()),
-                SLA = cols[3].Trim(),
-                MeterType = cols[4].Trim()
+                CustomerId = CsvFile.Required(cols[0], "CustomerId"),
+                Name = CsvFile.Required(cols[1], "Name"),
+                HasUnpaidInvoice = bool.Parse(cols[2]),
+                SLA = CsvFile.Choice(cols[3], "SLA", "Standard", "Premium"),
+                MeterType = CsvFile.Choice(cols[4], "MeterType", "Classic", "Smart")
             };
-            dict[customer.CustomerId] = customer;
-        }
-        return dict;
+            if (result.ContainsKey(item.CustomerId))
+                throw new FormatException($"Duplicate CustomerId '{item.CustomerId}'.");
+            return item;
+        }))
+            result.Add(item.CustomerId, item);
+        return result;
     }
 }

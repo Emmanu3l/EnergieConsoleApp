@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,10 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\lib\**\*">
-      <Link>lib\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Content Include="..\..\lib\InputFiles\**\*">
+      <Link>lib\InputFiles\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="..\..\lib\OutputFiles\">
+      <Link>lib\OutputFiles</Link>
+    </Folder>
   </ItemGroup>
 
 </Project>

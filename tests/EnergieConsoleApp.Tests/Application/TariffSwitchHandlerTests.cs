@@ -38,6 +38,34 @@ public class TariffSwitchHandlerTests
         };
     }
 
+    [Theory]
+    [InlineData("2025-03-29T12:00:00Z", "2025-03-31T14:00:00+02:00")]
+    [InlineData("2025-10-25T12:00:00Z", "2025-10-27T13:00:00+01:00")]
+    public void SlaPreserves48ElapsedHoursAcrossDst(string requestedAt, string expected)
+    {
+        _requestRepo.PendingRequests.Add(new Request
+        {
+            RequestId = "DST", CustomerId = "C_STANDARD", TargetTariffId = "T_BASIC",
+            RequestedAt = DateTimeOffset.Parse(requestedAt).UtcDateTime
+        });
+        _handler.ProcessPendingRequests();
+        Assert.Equal(expected, _processedRepo.SavedResults.Single().SlaDue);
+    }
+
+    [Fact]
+    public void DuplicateRequestsAreSkippedWithinAndAcrossRuns()
+    {
+        var request = new Request
+        {
+            RequestId = "DUP", CustomerId = "C_STANDARD", TargetTariffId = "T_BASIC",
+            RequestedAt = new DateTime(2025, 1, 10, 10, 0, 0, DateTimeKind.Utc)
+        };
+        _requestRepo.PendingRequests.AddRange([request, request]);
+        _handler.ProcessPendingRequests();
+        _handler.ProcessPendingRequests();
+        Assert.Single(_processedRepo.SavedResults);
+    }
+
     [Fact]
     public void Scenario1_StandardSLA_ShouldApproveWith48Hours()
     {
@@ -154,7 +182,7 @@ public class FakeProcessedRepository : IProcessedRequestRepository
 {
     public List<ProcessedRequest> SavedResults { get; } = new();
     
-    public HashSet<string> GetProcessedRequestIds() => new HashSet<string>();
+    public HashSet<string> GetProcessedRequestIds() => SavedResults.Select(result => result.RequestId).ToHashSet();
 
     public void SaveProcessedRequest(ProcessedRequest result)
     {
